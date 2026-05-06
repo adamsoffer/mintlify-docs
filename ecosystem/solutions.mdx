@@ -1,0 +1,77 @@
+---
+title: "Build on Livepeer: solutions and integrations"
+sidebarTitle: "Solutions"
+description: "Learn how solutions integrate with Livepeer — from direct API calls to SDK integration and MCP tools — and how to start building your own application."
+---
+
+A **solution** is a product or application that wraps Livepeer's GPU inference and transcoding capabilities into a user experience. Solutions sit at the demand layer of the network: they call the Livepeer inference API, route workloads to orchestrators, and deliver the result to their users. You don't need to operate any network infrastructure to build a solution.
+
+## Integration methods
+
+There are three ways to connect your application to Livepeer's inference network. The right choice depends on your stack and workflow.
+
+<AccordionGroup>
+  <Accordion title="Which integration method is right for me?">
+    **Direct API** is best if you have a backend service and want full control over request parameters, model selection, and error handling. It's the most flexible and has no SDK overhead.
+
+    **SDK integration** is best if you're building in Python or JavaScript and want a simpler interface with typed methods, automatic retries, and less boilerplate. It wraps the API for you.
+
+    **MCP tool** is best if you're building AI agent workflows using tools like Claude or other MCP-compatible systems. The Livepeer MCP server exposes inference as callable agent tools, so agents can generate images or process video without you writing custom API glue.
+
+    If you're not sure, start with the SDK. You can always drop down to the direct API for edge cases.
+  </Accordion>
+</AccordionGroup>
+
+### Direct API
+
+Call the Livepeer inference API directly from your backend. Use any HTTP client; no SDK required.
+
+```bash
+curl -X POST https://livepeer.network/api/inference/text-to-image \
+  -H "Authorization: Bearer $LIVEPEER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "a river at sunset"}'
+```
+
+### SDK integration
+
+Use the Python SDK for typed methods, automatic retries, and a simpler integration surface.
+
+```python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+result = client.inference.text_to_image(prompt="a river at sunset")
+```
+
+### MCP tool
+
+Integrate via the Livepeer MCP server to expose inference as callable tools in AI agent workflows. MCP-compatible agents can invoke image generation, video processing, and other pipelines without custom API code.
+
+## What real solutions use
+
+The applications already shipping on Livepeer give you a map of what's possible at each layer of the stack.
+
+| Solution | Integration | What it does |
+|---|---|---|
+| **Daydream** | Direct API | img2img pipeline running at 60 fps for generative world experiences |
+| **Embody** | Direct API | Real-time avatar generation for telepresence and AI agent characters |
+| **Blue Claw** | Direct API | LLM and vision inference for always-on autonomous agents |
+| **Streamplace** | Transcoding API | Decentralized social streaming with community-operated GPU transcoding |
+
+## Start building
+
+<Steps>
+  <Step title="Get API access">
+    Create an account and generate your API key in the [Developer Dashboard](https://livepeer.org/dashboard). Your key gives you access to the full set of inference and transcoding APIs.
+  </Step>
+  <Step title="Choose the right pipeline">
+    Browse the available pipelines — text-to-image, image-to-image, text-to-video, upscaling, and more — and identify which best fits your use case. The API reference documents every model and parameter.
+  </Step>
+  <Step title="Integrate the SDK or call the API directly">
+    Install the Python or JavaScript SDK, or call the REST API directly from your backend. Start with a single pipeline call and build from there.
+  </Step>
+  <Step title="Submit to the ecosystem directory">
+    When your application is live, add it to the Livepeer ecosystem directory at [livepeer.org/ecosystem/submit](https://livepeer.org/ecosystem/submit) so other builders can discover what you've built.
+  </Step>
+</Steps>

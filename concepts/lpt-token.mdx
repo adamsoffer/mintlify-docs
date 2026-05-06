@@ -1,0 +1,51 @@
+---
+title: "Livepeer Token (LPT): network coordination"
+sidebarTitle: "LPT Token"
+description: "LPT is not required to use the API. It coordinates work routing to orchestrators and lets delegators earn rewards by staking toward trusted GPU providers."
+---
+
+The Livepeer Token (LPT) is the coordination mechanism that keeps the network honest and efficient. It determines which GPU operators receive inference jobs and aligns incentives between orchestrators, delegators, and the applications that use the network.
+
+<Note>
+  **You do not need LPT to call the Livepeer API.** Payment for inference work is in fiat-equivalent terms. LPT is for network participants — orchestrators and delegators — not for developers making API calls. You can go from signup to your first inference job without ever touching the token.
+</Note>
+
+## What LPT does
+
+LPT is a staking token. Orchestrators stake LPT to earn the right to perform inference jobs on the network. The more LPT staked to an orchestrator, the more work the protocol routes to them. This creates a market signal: operators with more stake have more skin in the game and receive proportionally more traffic.
+
+Delegators are LPT holders who stake their tokens toward orchestrators they trust. They do not run hardware themselves — they signal confidence in specific operators and earn a share of the fees those operators generate.
+
+## How LPT makes Livepeer cheaper
+
+When an orchestrator earns inference fees, they also earn a share of newly minted LPT — similar to Bitcoin and Ethereum block rewards. This token inflation is split among active participants in proportion to their total stake.
+
+Because the value of LPT offsets part of what orchestrators need to charge to break even on their hardware costs, they can price their compute significantly below what a centralized cloud provider would charge. This is the structural reason Livepeer can offer 60–85% lower cost than AWS, RunPod, and Fal.
+
+## Roles in the network
+
+| Role | What they do | LPT requirement |
+|---|---|---|
+| **Developer** | Call inference pipelines via the API | None — pay in fiat-equivalent |
+| **Orchestrator** | Run AI models on GPU hardware, earn fees | Must stake LPT to receive work |
+| **Delegator** | Stake LPT toward trusted orchestrators | Hold and stake LPT to earn rewards |
+
+## Token details
+
+- **Contract (Ethereum mainnet):** `0x58b6a8a3302369daec383334672404ee733ab239`
+- **Token minting:** New LPT is minted over time and distributed to active participants in proportion to their stake
+- **Fee currency:** Inference fees are paid in ETH or stablecoins — not LPT
+
+## Where to get LPT
+
+If you want to participate in the network as an orchestrator or delegator, you can acquire LPT on:
+
+- [Binance](https://www.binance.com/en/trade/LPT_USDT)
+- [Coinbase](https://www.coinbase.com/price/livepeer)
+- [Kraken](https://www.kraken.com/prices/livepeer)
+- [Uniswap](https://app.uniswap.org/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239)
+- [OKX](https://www.okx.com/trade-spot/lpt-usdt)
+
+<Tip>
+  To stake LPT toward an orchestrator and start earning rewards, use the Explorer at [explorer.livepeer.org](https://explorer.livepeer.org). See the [Staking and Delegation](/network/staking-delegation) guide for a step-by-step walkthrough.
+</Tip>

@@ -1,0 +1,118 @@
+---
+title: "POST /inference/image-to-image"
+sidebarTitle: "Image to Image"
+description: "Transform a source image with a text prompt. Accepts image_url, prompt, and strength. Returns output_url and orchestrator attribution for the completed job."
+---
+
+Transform a source image using a text prompt. This endpoint is well-suited for style transfer, artistic effects, depth-guided transformation, and real-time video frame processing. You control how closely the output follows your prompt versus preserving the original image using the `strength` parameter — lower values preserve more of the source, higher values lean into the transformation.
+
+## Endpoint
+
+```
+POST https://livepeer.network/api/inference/image-to-image
+```
+
+**Authentication:** `Authorization: Bearer <api-key>`  
+**Content-Type:** `application/json`
+
+## Request parameters
+
+<ParamField body="prompt" type="string" required>
+  Text description of the desired transformation. For example: `"watercolor painting style"` or `"anime with vibrant colors"`.
+</ParamField>
+
+<ParamField body="image_url" type="string" required>
+  URL of the source image to transform. Supports JPEG, PNG, and WebP formats.
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  Describe what you want to avoid in the output. For example: `"blurry, low quality, distorted"`.
+</ParamField>
+
+<ParamField body="strength" type="number" default="0.7">
+  Transformation intensity between `0.0` and `1.0`. A value of `0.0` preserves the original image entirely; `1.0` applies the full transformation. Values around `0.7` balance fidelity to the source with the prompt effect.
+</ParamField>
+
+<ParamField body="num_inference_steps" type="integer" default="20">
+  Controls the quality-to-speed trade-off. Higher values produce better results but take longer to process. Recommended range: 10–50.
+</ParamField>
+
+<ParamField body="guidance_scale" type="number" default="7.5">
+  Controls how closely the output follows your prompt. Higher values produce results that adhere more tightly to the prompt; lower values give the model more creative freedom.
+</ParamField>
+
+<ParamField body="pipeline" type="string" default="stable-diffusion-img2img">
+  The specific model pipeline to use. Use `GET /pipelines` to list available pipelines and their identifiers.
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  Random seed for reproducible outputs. Use the same seed with the same parameters to get consistent results across multiple calls.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="output_url" type="string">
+  URL to the generated output image hosted on Livepeer's CDN.
+</ResponseField>
+
+<ResponseField name="orchestrator" type="string">
+  Ethereum address of the orchestrator node that served the job. Cryptographically attributed by the protocol.
+</ResponseField>
+
+<ResponseField name="job_id" type="string">
+  Unique identifier for this job. Include this in bug reports or support requests.
+</ResponseField>
+
+<ResponseField name="duration_ms" type="integer">
+  Total processing time in milliseconds, from request receipt to output delivery.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Job outcome: `"success"` or `"failed"`. A `"failed"` status means the job was retried up to three times across different orchestrators and did not complete. You are not charged for failed jobs.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://livepeer.network/api/inference/image-to-image \
+  -H "Authorization: Bearer lp_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "watercolor painting style, soft brush strokes",
+    "image_url": "https://example.com/photo.jpg",
+    "strength": 0.75,
+    "num_inference_steps": 30
+  }'
+```
+
+```python Python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+response = client.inference.image_to_image(
+    prompt="watercolor painting style, soft brush strokes",
+    image_url="https://example.com/photo.jpg",
+    strength=0.75,
+    num_inference_steps=30
+)
+
+print(response.output_url)
+print(f"Served by orchestrator: {response.orchestrator}")
+```
+
+</CodeGroup>
+
+## Example response
+
+```json
+{
+  "output_url": "https://cdn.livepeer.network/jobs/abc123/output.jpg",
+  "orchestrator": "0x1234567890abcdef...",
+  "job_id": "job_abc123xyz",
+  "duration_ms": 1250,
+  "status": "success"
+}
+```

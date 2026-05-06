@@ -1,0 +1,137 @@
+---
+title: "POST /inference/text-to-image"
+sidebarTitle: "Text to Image"
+description: "Generate a new image from a text prompt. Accepts prompt, dimensions, and inference steps. Returns an images array with URLs and orchestrator attribution."
+---
+
+Generate an image from a text description. This endpoint is useful for AI-generated worlds, visual content creation, prototype visuals, and real-time generative experiences where the image itself is the model's output rather than a transformation of existing content. Use the `num_images` parameter to request up to four images in a single call when you want to compare variations.
+
+## Endpoint
+
+```
+POST https://livepeer.network/api/inference/text-to-image
+```
+
+**Authentication:** `Authorization: Bearer <api-key>`  
+**Content-Type:** `application/json`
+
+## Request parameters
+
+<ParamField body="prompt" type="string" required>
+  Text description of the image you want to generate. More specific prompts typically yield better results. For example: `"a futuristic cityscape at sunset, neon lights, cyberpunk style, 8k, detailed"`.
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  Describe what you want to exclude from the output. For example: `"blurry, low resolution, watermark, text"`.
+</ParamField>
+
+<ParamField body="width" type="integer" default="512">
+  Output image width in pixels. Accepted range: 64–1024. Use multiples of 64 for best results with most pipelines.
+</ParamField>
+
+<ParamField body="height" type="integer" default="512">
+  Output image height in pixels. Accepted range: 64–1024. Use multiples of 64 for best results with most pipelines.
+</ParamField>
+
+<ParamField body="num_inference_steps" type="integer" default="20">
+  Controls the quality-to-speed trade-off. Higher values produce sharper, more detailed images but take longer. Recommended range: 10–50.
+</ParamField>
+
+<ParamField body="guidance_scale" type="number" default="7.5">
+  Controls how closely the output follows your prompt. Higher values produce results that adhere more tightly to the prompt; lower values give the model more creative latitude.
+</ParamField>
+
+<ParamField body="num_images" type="integer" default="1">
+  Number of images to generate in a single request. Accepted range: 1–4. All images use the same prompt and parameters.
+</ParamField>
+
+<ParamField body="pipeline" type="string">
+  Specific pipeline variant to use. If omitted, the network selects a default text-to-image pipeline. Use `GET /pipelines` to list available options.
+</ParamField>
+
+<ParamField body="seed" type="integer">
+  Random seed for reproducible outputs. Use the same seed and parameters across calls to get consistent results.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="images" type="array">
+  Array of output image objects. Each object contains:
+  - `url` (string) — URL to the generated image on Livepeer's CDN
+  - `index` (integer) — Position of this image in the batch (zero-indexed)
+</ResponseField>
+
+<ResponseField name="orchestrator" type="string">
+  Ethereum address of the orchestrator node that served the job.
+</ResponseField>
+
+<ResponseField name="job_id" type="string">
+  Unique identifier for this job.
+</ResponseField>
+
+<ResponseField name="duration_ms" type="integer">
+  Total processing time in milliseconds.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Job outcome: `"success"` or `"failed"`. Failed jobs are not charged.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://livepeer.network/api/inference/text-to-image \
+  -H "Authorization: Bearer lp_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "a sci-fi cityscape at sunset, neon lights, volumetric fog, 8k",
+    "negative_prompt": "blurry, low quality, watermark",
+    "width": 768,
+    "height": 512,
+    "num_inference_steps": 30,
+    "num_images": 2
+  }'
+```
+
+```python Python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+response = client.inference.text_to_image(
+    prompt="a sci-fi cityscape at sunset, neon lights, volumetric fog, 8k",
+    negative_prompt="blurry, low quality, watermark",
+    width=768,
+    height=512,
+    num_inference_steps=30,
+    num_images=2
+)
+
+for image in response.images:
+    print(f"Image {image.index}: {image.url}")
+```
+
+</CodeGroup>
+
+## Example response
+
+```json
+{
+  "images": [
+    {
+      "url": "https://cdn.livepeer.network/jobs/xyz789/output_0.jpg",
+      "index": 0
+    },
+    {
+      "url": "https://cdn.livepeer.network/jobs/xyz789/output_1.jpg",
+      "index": 1
+    }
+  ],
+  "orchestrator": "0xabcdef1234567890...",
+  "job_id": "job_xyz789abc",
+  "duration_ms": 2840,
+  "status": "success"
+}
+```

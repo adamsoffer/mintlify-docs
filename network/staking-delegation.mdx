@@ -1,0 +1,57 @@
+---
+title: "Stake LPT and earn rewards by delegating"
+sidebarTitle: "Staking & Delegation"
+description: "Delegate your LPT to trusted orchestrators to earn a share of developer fees and LPT inflation rewards without running any infrastructure yourself."
+---
+
+Delegation lets you put your LPT to work without operating a node. You stake your tokens toward an orchestrator you trust, earn a share of the fees developers pay for GPU inference, and collect LPT inflation rewards — all from your Ethereum wallet. The process is non-custodial: you keep ownership of your tokens while they're staked.
+
+<Note>
+  Delegation is for LPT holders who want to participate in network economics. You do **not** need to delegate, hold LPT, or interact with the protocol in any way to use the Livepeer inference API as a developer.
+</Note>
+
+## Why delegate
+
+When a developer pays fees for AI inference on the Livepeer network, those fees flow to orchestrators and their delegators. As a delegator you earn:
+
+- **A share of developer fees** — a portion of the ETH or stablecoins paid for every inference job routed to your chosen orchestrator.
+- **LPT inflation rewards** — the protocol mints new LPT over time (similar to block rewards in Bitcoin and Ethereum) and distributes it to active participants in proportion to their stake.
+
+Delegation is also how the network signals quality. Orchestrators with more delegated stake receive more job routing weight, so your delegation shapes which operators the network trusts most.
+
+## Staking mechanics
+
+| Concept | Detail |
+|---|---|
+| **Lock period** | Tokens are locked while staked. Unbonding takes approximately 7 days. |
+| **Commission** | Each orchestrator sets its own commission rate on rewards earned. |
+| **Slashing risk** | There is no slashing risk for delegators. If an orchestrator misbehaves, you can redelegate; you don't lose your principal. |
+| **Claiming rewards** | Accumulated rewards must be claimed manually through the Explorer. |
+
+## How to delegate
+
+<Steps>
+  <Step title="Get LPT">
+    Purchase LPT on a supported exchange:
+    [Binance](https://www.binance.com/en/trade/LPT_USDT) · [Coinbase](https://www.coinbase.com/price/livepeer) · [Kraken](https://www.kraken.com/prices/livepeer) · [Uniswap](https://app.uniswap.org/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239) · [OKX](https://www.okx.com/trade-spot/lpt-usdt)
+
+    Transfer the LPT to a self-custodial Ethereum wallet (MetaMask or any compatible wallet).
+  </Step>
+  <Step title="Open the Livepeer Explorer">
+    Go to [explorer.livepeer.org](https://explorer.livepeer.org) and connect your wallet.
+  </Step>
+  <Step title="Browse orchestrators">
+    Review the list of active orchestrators. For each one you can see:
+    - Performance metrics and uptime history
+    - Commission rate on fees and inflation rewards
+    - Total delegated stake and routing weight
+
+    Choose an orchestrator with a consistent performance record and a commission rate you're comfortable with.
+  </Step>
+  <Step title="Delegate">
+    Click **Delegate** on your chosen orchestrator, enter the amount of LPT you want to stake, and confirm the transaction in your wallet.
+  </Step>
+  <Step title="Start earning">
+    Your stake is active immediately. Rewards accumulate each round. Return to the Explorer to claim them whenever you like.
+  </Step>
+</Steps>

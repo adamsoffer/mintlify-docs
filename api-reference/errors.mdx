@@ -1,0 +1,77 @@
+---
+title: "API error codes and troubleshooting"
+sidebarTitle: "Errors"
+description: "All Livepeer API HTTP status codes, the JSON error response format, and how to handle job failures, capacity limits, and rate limiting in your application."
+---
+
+When a request fails, the Livepeer API returns a JSON body with a consistent error structure alongside the HTTP status code. Read the `code` field to identify the specific failure — it tells you whether the problem is with your request, your credentials, or network availability.
+
+## Error response format
+
+```json
+{
+  "error": {
+    "code": "job_failed",
+    "message": "Inference job failed after 3 retries",
+    "orchestrator": "0xabc123...",
+    "job_id": "job_xyz789"
+  }
+}
+```
+
+The `orchestrator` and `job_id` fields are included when the error occurred during job execution — they help you trace failures to a specific node and report issues to the network.
+
+## HTTP status codes
+
+| Status | Error code | Description |
+|--------|------------|-------------|
+| 400 | `invalid_request` | Missing required field or malformed JSON |
+| 400 | `invalid_pipeline` | Specified pipeline does not exist |
+| 401 | `unauthorized` | API key missing, malformed, or revoked |
+| 403 | `forbidden` | Key does not have access to this endpoint |
+| 404 | `not_found` | Resource does not exist |
+| 422 | `unprocessable` | Request is valid JSON but parameters are out of range |
+| 429 | `rate_limit_exceeded` | Rate limit hit; retry after the indicated seconds |
+| 503 | `no_capacity` | No orchestrators available for the requested pipeline |
+| 504 | `job_timeout` | Job exceeded maximum allowed processing time |
+
+## Common scenarios
+
+### Job failures
+
+When a job fails during execution, the response includes `job_failed` as the error code along with orchestrator attribution. You are not charged for failed jobs. The Python SDK automatically retries failed jobs on a different orchestrator up to three times before surfacing the error to your code.
+
+### No capacity (503)
+
+<Note>
+503 errors are temporary and most common during peak demand. They mean no orchestrators are currently available for the requested pipeline — not that the pipeline is broken.
+</Note>
+
+When you receive a 503, retry your request with exponential backoff. Alternatively, use the `/pipelines` endpoint to find a similar pipeline that may have available capacity right now.
+
+### Rate limiting (429)
+
+When you hit your rate limit, the response includes a `Retry-After` header with the number of seconds to wait before retrying. Implement exponential backoff in your application rather than retrying immediately.
+
+<Tip>
+Check the Livepeer network status page for known outages before spending time debugging 503 or 504 errors. Widespread failures are usually network-wide events, not issues with your code.
+</Tip>
+
+## Handling errors in Python
+
+```python
+import livepeer
+from livepeer.exceptions import LivepeerAPIError, RateLimitError
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+try:
+    response = client.inference.image_to_image(
+        prompt="anime style",
+        image_url="https://example.com/image.jpg"
+    )
+except RateLimitError as e:
+    print(f"Rate limit hit. Retry after {e.retry_after}s")
+except LivepeerAPIError as e:
+    print(f"API error: {e.code} - {e.message}")
+```

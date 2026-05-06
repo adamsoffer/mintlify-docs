@@ -1,0 +1,87 @@
+---
+title: "What is Livepeer? Open GPU Network for AI Video"
+sidebarTitle: "Introduction"
+description: "Livepeer is the open GPU network for real-time AI video inference — 60–85% cheaper than AWS, RunPod, or Fal, with no vendor lock-in."
+---
+
+Livepeer is the open GPU network for real-time AI video inference. It connects developers building AI-powered video applications with a global pool of independent GPU providers — at 60–85% lower cost than centralized cloud alternatives like AWS, RunPod, and Fal. You can authenticate and make your first inference call in under five minutes, with no enterprise contract and no vendor lock-in.
+
+## Who Livepeer is for
+
+Livepeer is built for developers working on real-time AI video workloads: AI-generated worlds, style transfer, object detection, AI avatars, and live transcoding. If your application processes or generates video using AI models — and you need continuous, low-latency GPU inference — Livepeer is designed for that workload.
+
+The network is also built for the "edges" audience: technically fluent, infrastructure-aware builders who want open access and cost efficiency, and who can accept the trade-offs of a decentralized network rather than paying for enterprise SLAs.
+
+<CardGroup cols={2}>
+  <Card title="Quick start" icon="bolt" href="/quickstart">
+    Go from zero to your first inference call in under five minutes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Get your API key and authenticate your first request.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/overview">
+    Explore all available inference endpoints and parameters.
+  </Card>
+  <Card title="Network concepts" icon="network-wired" href="/concepts/network">
+    Understand the supply, protocol, and demand layers that power the network.
+  </Card>
+</CardGroup>
+
+## Key differentiators
+
+**Cost.** The network operates at 60–85% lower cost than centralized GPU cloud alternatives. Livepeer orchestrators earn LPT token rewards that offset their infrastructure costs, which is why independent GPU providers can charge less than single-tenant cloud services.
+
+**Permissionless access.** You do not need an enterprise contract, a sales conversation, or a platform relationship to use the network. Sign up at the Developer Dashboard, get an API key, and make your first call.
+
+**No vendor lock-in.** The Livepeer Developer Dashboard is a demand-side interface to the open Livepeer protocol. You can access the network directly through the protocol if you prefer. There is no platform dependency you can't route around.
+
+## Two surfaces, three audiences
+
+Livepeer has two network surfaces. Each serves a different audience with different jobs to do.
+
+| Surface | Audience | What they do |
+|---------|----------|--------------|
+| **Developer Dashboard** | Builders | Build applications and call the network via API |
+| **Explorer** | Operators | Deploy GPU nodes and contribute compute to the network |
+| **Explorer** | Delegators | Stake LPT toward reliable orchestrators and earn rewards |
+
+If you are here to build, the Developer Dashboard is your surface. The [Explorer](https://explorer.livepeer.org) is for people extending or investing in the network.
+
+## How the network is structured
+
+Every inference call you make travels through three layers:
+
+1. **Your application** sends a request to the Developer Dashboard's authenticated API endpoint.
+2. **Gateway nodes** receive the request and route it to available GPU capacity via the protocol's discovery and payment mechanisms.
+3. **Orchestrator nodes** (independent GPU clusters) run the AI model and return the result. Orchestrators must stake LPT to participate, and **delegators** stake LPT toward orchestrators they trust to reinforce network reliability.
+
+You do not select an orchestrator — the protocol routes your job to available capacity based on the pipeline you are calling. You can see which orchestrator served your job after it completes.
+
+```
+Your application
+      │
+      ▼
+Developer Dashboard API
+      │
+      ▼
+Gateway nodes (routing & payment)
+      │
+      ▼
+Orchestrator nodes (GPU compute)
+```
+
+<Note>
+  The Livepeer network operates at an estimated 90–95% uptime. It is not enterprise-grade — there are no formal SLAs. It is a builders' tool: open, cost-effective, and permissionless. Jobs that fail are not charged. If your workload requires guaranteed uptime, review the [network concepts](/concepts/network) page before you build.
+</Note>
+
+## What you can build
+
+Livepeer supports real-time GPU inference on live video streams. Developers on the network are building:
+
+- **AI-generated worlds** — Live environments rendered frame-by-frame from user inputs
+- **AI avatars** — Real-time video representations of AI agents for tutoring, telepresence, and conversational interfaces
+- **Live video intelligence** — Object detection, scene classification, and stream analytics processed during the stream
+- **Prompt-driven style transfer** — Transform a live stream's visual style via text prompt in real time
+- **Live transcoding** — Adaptive bitrate transcoding across a global GPU network with sub-second latency
+
+Ready to make your first call? Head to the [quick start](/quickstart).

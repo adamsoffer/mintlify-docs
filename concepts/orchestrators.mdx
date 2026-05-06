@@ -1,0 +1,48 @@
+---
+title: "What are orchestrators on Livepeer?"
+sidebarTitle: "Orchestrators"
+description: "Orchestrators are GPU operators who run AI inference on Livepeer, earn fees per second of compute, and receive jobs automatically via protocol routing."
+---
+
+Orchestrators are the GPU providers that power the Livepeer network. When you submit an AI inference job — generating an image, analyzing a video frame, transcoding a stream — an orchestrator is the machine that runs it. Understanding how orchestrators work helps you reason about job routing, reliability, and cost on the network.
+
+<Tip>
+  You do not need to understand orchestrators to use the Livepeer API. The protocol selects and routes jobs to orchestrators automatically. You specify the pipeline; the network handles the rest.
+</Tip>
+
+## What orchestrators do
+
+Orchestrators run AI pipelines on behalf of developers. They accept jobs from the network's gateway nodes, execute them on GPU hardware, and return results. They earn fees in ETH or stablecoins, metered per second of compute.
+
+Pipelines orchestrators support include:
+
+- **Image generation** — Text-to-image and image-to-image transformations
+- **Video analysis** — Object detection, scene classification, custom model inference
+- **Style transfer and depth estimation** — Frame-level artistic and spatial transformations
+- **Transcoding** — Adaptive bitrate encoding for live streams
+
+## How job routing works
+
+The protocol routes your job automatically. When you call an inference endpoint, the gateway node selects an available orchestrator based on two factors: which pipeline you requested, and the current price for that workload. You do not pick an orchestrator before a job runs.
+
+After a job completes, you can see which orchestrator served it. Every job includes cryptographic attribution — the result is verifiably tied to the orchestrator that produced it. This makes the network auditable and prevents spoofing.
+
+## Reliability and retries
+
+Orchestrators vary in uptime. The network accounts for this automatically:
+
+- **Failed jobs are not charged.** If a job does not complete, you pay nothing.
+- **Retries are automatic.** The protocol reroutes failed jobs to alternative orchestrators without requiring action on your part.
+- **Persistent failures return an error.** If no orchestrator can complete the job, the client receives an error with orchestrator attribution and a pointer to the protocol status page.
+
+<Note>
+  If you need to pin work to a specific orchestrator — for reproducibility, testing, or compliance — you can pass an orchestrator address as a request parameter. Most developers do not need this. See the [API Reference](/api-reference/overview) for the parameter details.
+</Note>
+
+## Who can become an orchestrator
+
+Anyone with capable GPU hardware can join the network as an orchestrator. The process is permissionless: there is no application, no approval, and no contract. Orchestrators must stake LPT to receive work — the more LPT staked, the more jobs routed to them. See [LPT Token](/concepts/lpt-token) for how staking works.
+
+## Bring your own container (BYOC)
+
+Advanced users can deploy a custom container to the network and serve it as an orchestrator pipeline. This means your own model, your own inference logic, accessible to any developer calling the Livepeer API. See the [BYOC guide](/guides/byoc-orchestrator) for the full setup process.

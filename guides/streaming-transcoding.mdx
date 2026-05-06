@@ -1,0 +1,69 @@
+---
+title: "Live transcoding and adaptive bitrate streaming"
+sidebarTitle: "Live Transcoding"
+description: "Use Livepeer's transcoding API to produce adaptive bitrate renditions of a live video stream across a global GPU network with sub-second latency."
+---
+
+Livepeer's transcoding API takes a live stream input and produces multiple adaptive bitrate (ABR) renditions — 1080p, 720p, 480p, 360p — so players on any device or network can pick the right quality automatically. The work runs across a global pool of independent GPU providers with sub-second latency, making it suitable for live streaming platforms, broadcasting, and video-on-demand delivery.
+
+## Common use cases
+
+- **Live streaming platforms** — transcode a single ingest stream into ABR renditions for broad device support
+- **Broadcasting** — deliver high-quality output to viewers at varying bandwidths without managing per-viewer encoding
+- **Video-on-demand** — transcode uploaded video files into streamable HLS packages for on-demand playback
+
+## Create a transcoding job
+
+Send a `POST` request with your stream URL and the renditions you want:
+
+```bash
+curl -X POST https://livepeer.network/api/transcoding \
+  -H "Authorization: Bearer lp_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stream_url": "rtmp://your-ingest-endpoint/stream-key",
+    "renditions": [
+      {"resolution": "1080p", "bitrate": "4000k", "fps": 30},
+      {"resolution": "720p", "bitrate": "2000k", "fps": 30},
+      {"resolution": "480p", "bitrate": "800k", "fps": 30},
+      {"resolution": "360p", "bitrate": "400k", "fps": 30}
+    ],
+    "output_format": "hls"
+  }'
+```
+
+Or use the Python SDK:
+
+```python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+job = client.transcoding.create(
+    stream_url="rtmp://your-ingest-endpoint/stream-key",
+    renditions=[
+        {"resolution": "1080p", "bitrate": "4000k", "fps": 30},
+        {"resolution": "720p",  "bitrate": "2000k", "fps": 30},
+        {"resolution": "480p",  "bitrate": "800k",  "fps": 30},
+    ],
+    output_format="hls"
+)
+
+print(f"HLS Playback URL: {job.playback_url}")
+print(f"Stream ID: {job.stream_id}")
+```
+
+## Response fields
+
+| Field | Description |
+|-------|-------------|
+| `playback_url` | HLS manifest URL — pass this to any HLS-compatible player |
+| `stream_id` | Unique identifier for this stream session |
+| `status` | Current stream status (`active`, `idle`, `error`) |
+| `renditions` | Array of output stream details, one per requested rendition |
+
+Point your video player at `playback_url` to start playback. The player fetches the HLS manifest and selects the appropriate rendition based on the viewer's available bandwidth.
+
+<Tip>
+  You can combine transcoding with AI inference pipelines. For example, apply an image-to-image style transfer pipeline to each frame of a live stream while simultaneously transcoding it into ABR renditions. See [First Inference Call](/guides/first-inference-call) for inference setup.
+</Tip>

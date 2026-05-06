@@ -1,0 +1,77 @@
+---
+title: "Deploy a custom container as a Livepeer orchestrator"
+sidebarTitle: "BYOC Orchestrator"
+description: "Bring your own GPU container to the Livepeer network, register as an orchestrator, serve paid jobs, and earn fees — using the self-serve interface."
+---
+
+Bring Your Own Container (BYOC) lets you deploy a custom Docker container — running any AI model you choose — to the Livepeer network as an orchestrator. Once registered and staked, the protocol routes compatible inference jobs to your container, and you earn fees in ETH or stablecoins for each job served. No Foundation approval required.
+
+<Warning>
+  BYOC is designed for advanced users. Full orchestration polish is ongoing. Use BYOC for experimental or specialized workloads, not for production services requiring high reliability. Standard inference pipelines managed by existing network orchestrators are available without BYOC — it is only needed when you want to run a custom or proprietary model.
+</Warning>
+
+## When to use BYOC
+
+Use BYOC when you want to:
+
+- Run a custom or proprietary AI model that is not available in the standard pipeline catalog
+- Earn fees as a GPU provider by serving jobs on the network
+- Integrate a specialized inference pipeline you have built yourself
+
+<Note>
+  If you only want to call existing inference pipelines (image-to-image, text-to-image, transcoding), you do not need BYOC. See [First Inference Call](/guides/first-inference-call) to get started as a developer.
+</Note>
+
+## Requirements
+
+Before deploying a custom container, make sure you have:
+
+- GPU hardware that meets the minimum specs for your target workload
+- A Docker container with your AI model that exposes a standard Livepeer inference API (see [Container API requirements](#container-api-requirements) below)
+- LPT (Livepeer Token) to stake — staking determines your routing weight on the network
+
+## Deploy your orchestrator
+
+<Steps>
+  <Step title="Go to the Explorer operator view">
+    Navigate to [explorer.livepeer.org](https://explorer.livepeer.org) and switch to the **Operator** view. This is the supply-side surface for GPU providers and orchestrators.
+  </Step>
+
+  <Step title="Register your orchestrator and stake LPT">
+    Follow the on-screen registration flow to create your orchestrator identity on-chain and stake your LPT. Your routing weight — how frequently the protocol sends jobs to you — scales with your stake relative to other registered orchestrators.
+  </Step>
+
+  <Step title="Configure your custom container endpoint">
+    In the operator dashboard, enter the public endpoint where your container is running. The protocol will send inference requests to this endpoint when routing compatible jobs to your orchestrator.
+
+    Start your container with the required environment variable so it can authenticate requests from the network:
+
+    ```bash
+    docker run -p 8080:8080 \
+      -e LIVEPEER_ORCHESTRATOR_SECRET=your-secret \
+      your-org/your-ai-model:latest
+    ```
+  </Step>
+
+  <Step title="Receive routed jobs">
+    Once registered and live, the protocol discovers your orchestrator and routes compatible jobs to it. You do not need to solicit clients individually — routing is handled automatically by the protocol's discovery layer.
+  </Step>
+
+  <Step title="Get paid">
+    You receive payment per completed job in ETH or stablecoins. Payment settles on-chain via the protocol's payment mechanism. You can view your earnings and job history in the Explorer operator dashboard.
+  </Step>
+</Steps>
+
+## Container API requirements
+
+Your container must expose an HTTP endpoint that accepts and responds in the standard Livepeer inference format:
+
+- **Method**: `POST`
+- **Request body**: standard Livepeer inference request (JSON), including `prompt`, pipeline-specific parameters, and job metadata
+- **Response body**: standard output format including `output_url`, job metadata, and any error fields
+
+The protocol validates responses against this format. Jobs that return malformed responses are not credited.
+
+## Next steps
+
+For full orchestrator setup — including staking mechanics, fee configuration, and quality-of-service requirements — see the [orchestrator setup guide](/network/run-orchestrator).

@@ -1,0 +1,131 @@
+---
+title: "POST /transcoding — adaptive bitrate streaming"
+sidebarTitle: "Transcoding"
+description: "Create ABR HLS or DASH renditions from an RTMP stream. Accepts stream_url and renditions. Returns playback_url and stream_id for adaptive bitrate playback."
+---
+
+Create adaptive bitrate (ABR) HLS streams from an RTMP input source. When you submit a transcoding request, the Livepeer network distributes the transcoding work across available GPU nodes, producing multiple quality renditions simultaneously. Your players receive a single `.m3u8` manifest URL that automatically selects the best rendition for each viewer's bandwidth.
+
+This endpoint is suitable for live streaming platforms, interactive broadcasts, sports and events coverage, and any application where viewers need adaptive quality delivery with low latency.
+
+## Endpoint
+
+```
+POST https://livepeer.network/api/transcoding
+```
+
+**Authentication:** `Authorization: Bearer <api-key>`  
+**Content-Type:** `application/json`
+
+## Request parameters
+
+<ParamField body="stream_url" type="string" required>
+  RTMP ingest URL of the source stream to transcode.
+</ParamField>
+
+<ParamField body="renditions" type="object[]" required>
+  Array of output rendition configurations. Define one object per quality level you want to produce.
+
+  <Expandable title="rendition properties">
+    <ParamField body="resolution" type="string">
+      Output resolution. Accepted values: `"1080p"`, `"720p"`, `"480p"`, `"360p"`.
+    </ParamField>
+    <ParamField body="bitrate" type="string">
+      Target output bitrate. For example: `"4000k"`, `"2000k"`, `"800k"`, `"400k"`.
+    </ParamField>
+    <ParamField body="fps" type="integer">
+      Output frame rate. Accepted values: `30` or `60`.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="output_format" type="string" default="hls">
+  Output container format. Accepted values: `"hls"` or `"dash"`.
+</ParamField>
+
+<ParamField body="segment_duration" type="integer" default="2">
+  HLS segment duration in seconds. Shorter segments reduce latency but increase the number of segments players must fetch.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="stream_id" type="string">
+  Unique identifier for this transcoding stream session.
+</ResponseField>
+
+<ResponseField name="playback_url" type="string">
+  HLS manifest (`.m3u8`) URL. Point your video players at this URL to begin adaptive bitrate playback.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current stream status: `"starting"`, `"active"`, `"idle"`, or `"error"`.
+</ResponseField>
+
+<ResponseField name="renditions" type="array">
+  List of active rendition details, including the resolution, bitrate, and individual stream URL for each quality level.
+</ResponseField>
+
+<ResponseField name="orchestrator" type="string">
+  Ethereum address of the orchestrator node serving the transcoding job.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://livepeer.network/api/transcoding \
+  -H "Authorization: Bearer lp_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stream_url": "rtmp://ingest.example.com/live/stream-key",
+    "renditions": [
+      {"resolution": "1080p", "bitrate": "4000k", "fps": 30},
+      {"resolution": "720p",  "bitrate": "2000k", "fps": 30},
+      {"resolution": "480p",  "bitrate": "800k",  "fps": 30},
+      {"resolution": "360p",  "bitrate": "400k",  "fps": 30}
+    ],
+    "output_format": "hls",
+    "segment_duration": 2
+  }'
+```
+
+```python Python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+job = client.transcoding.create(
+    stream_url="rtmp://ingest.example.com/live/stream-key",
+    renditions=[
+        {"resolution": "1080p", "bitrate": "4000k", "fps": 30},
+        {"resolution": "720p",  "bitrate": "2000k", "fps": 30},
+        {"resolution": "480p",  "bitrate": "800k",  "fps": 30},
+        {"resolution": "360p",  "bitrate": "400k",  "fps": 30},
+    ],
+    output_format="hls",
+    segment_duration=2
+)
+
+print(f"Playback URL: {job.playback_url}")
+print(f"Stream ID: {job.stream_id}")
+```
+
+</CodeGroup>
+
+## Example response
+
+```json
+{
+  "stream_id": "stream_abc987xyz",
+  "playback_url": "https://cdn.livepeer.network/streams/stream_abc987xyz/index.m3u8",
+  "status": "active",
+  "renditions": [
+    {"resolution": "1080p", "bitrate": "4000k", "fps": 30, "url": "https://cdn.livepeer.network/streams/stream_abc987xyz/1080p/index.m3u8"},
+    {"resolution": "720p",  "bitrate": "2000k", "fps": 30, "url": "https://cdn.livepeer.network/streams/stream_abc987xyz/720p/index.m3u8"},
+    {"resolution": "480p",  "bitrate": "800k",  "fps": 30, "url": "https://cdn.livepeer.network/streams/stream_abc987xyz/480p/index.m3u8"},
+    {"resolution": "360p",  "bitrate": "400k",  "fps": 30, "url": "https://cdn.livepeer.network/streams/stream_abc987xyz/360p/index.m3u8"}
+  ],
+  "orchestrator": "0xfedcba9876543210..."
+}
+```

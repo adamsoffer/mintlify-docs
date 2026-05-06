@@ -1,0 +1,112 @@
+{
+  "projectType": "saas",
+  "projectName": "Livepeer Developer Dashboard",
+  "projectDescription": "The open GPU network for real-time AI video inference — any developer can go from docs to first inference call in under five minutes, with no enterprise contract and no vendor lock-in.",
+  "theme": "luma",
+  "primaryColor": "#18794E",
+  "lightColor": "#40BF86",
+  "darkColor": "#115C3B",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/network",
+              "concepts/orchestrators",
+              "concepts/pipelines",
+              "concepts/lpt-token"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/first-inference-call",
+              "guides/mcp-tools",
+              "guides/byoc-orchestrator",
+              "guides/streaming-transcoding"
+            ]
+          },
+          {
+            "group": "Ecosystem",
+            "pages": [
+              "ecosystem/overview",
+              "ecosystem/solutions"
+            ]
+          },
+          {
+            "group": "Network Participation",
+            "pages": [
+              "network/staking-delegation",
+              "network/run-orchestrator",
+              "network/explorer"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Inference",
+            "pages": [
+              "api-reference/inference/image-to-image",
+              "api-reference/inference/text-to-image",
+              "api-reference/inference/video-analysis",
+              "api-reference/inference/transcoding"
+            ]
+          },
+          {
+            "group": "SDK",
+            "pages": [
+              "api-reference/sdk/python",
+              "api-reference/sdk/mcp-server"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Five-minute API: docs to first inference call in under 5 minutes",
+    "MCP-compatible tool support (Cursor, Claude)",
+    "Open GPU network — no vendor lock-in, no enterprise contract required",
+    "Real-time AI video inference: style transfer, generative video, object detection",
+    "Bring Your Own Container (BYOC) orchestrator deployments",
+    "Live transcoding and adaptive bitrate streaming",
+    "60–85% cost advantage over centralized GPU clouds",
+    "Python SDK and published MCP server",
+    "Cryptographic job attribution per orchestrator",
+    "LPT token staking and delegation rewards"
+  ],
+  "publicApiSurface": [
+    "POST /inference/image-to-image",
+    "POST /inference/text-to-image",
+    "POST /inference/video-analysis",
+    "POST /transcoding",
+    "GET /pipelines",
+    "GET /orchestrators",
+    "Authentication via Developer Dashboard",
+    "Python SDK (livepeer)",
+    "MCP server for Cursor and Claude",
+    "Livepeer Explorer (explorer.livepeer.org) for staking and delegation"
+  ]
+}

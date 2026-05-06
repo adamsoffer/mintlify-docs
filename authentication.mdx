@@ -1,0 +1,79 @@
+---
+title: "Authenticate with the Livepeer API"
+description: "Get your API key from the Developer Dashboard, pass it as a Bearer token on every request, and understand what authentication errors mean."
+---
+
+Every request to the Livepeer API requires an API key. You get your key from the Developer Dashboard, then pass it in the `Authorization` header of each request. This page covers where to find your key, how to send it correctly, and what to do when authentication fails.
+
+## Get your API key
+
+1. Sign in at [livepeer.org/dashboard](https://livepeer.org/dashboard).
+2. Navigate to **Settings → API Keys**.
+3. Click **Create key**, give it a name, and copy the value.
+
+Your API key is shown once. Store it in an environment variable or a secrets manager — do not hardcode it in your source files or commit it to version control.
+
+You can create multiple keys (for example, one per environment or per application) and revoke any of them from the same settings page without affecting the others.
+
+<Note>
+  You do not need LPT (Livepeer Token) to call the API. LPT is the staking token used by orchestrators and delegators to participate in the network's supply side. As a developer calling the API, your only credential is your API key.
+</Note>
+
+## Pass your API key on every request
+
+Include your API key as a Bearer token in the `Authorization` header on every request:
+
+```
+Authorization: Bearer <your-api-key>
+```
+
+### Examples
+
+<CodeGroup>
+
+```bash cURL
+curl https://livepeer.network/api/inference/image-to-image \
+  -H "Authorization: Bearer lp_your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "anime style", "image_url": "https://example.com/input.jpg"}'
+```
+
+```python Python SDK
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key_here")
+
+response = client.inference.image_to_image(
+    prompt="anime style",
+    image_url="https://example.com/input.jpg"
+)
+
+print(response.image_url)
+```
+
+</CodeGroup>
+
+The Python SDK handles the `Authorization` header for you. Pass `api_key` when you instantiate the client and every subsequent call includes it automatically.
+
+For production use, read the key from an environment variable rather than hardcoding it:
+
+```python
+import os
+import livepeer
+
+client = livepeer.Livepeer(api_key=os.environ["LIVEPEER_API_KEY"])
+```
+
+## Authentication errors
+
+| Status | Meaning | What to do |
+|--------|---------|------------|
+| `401 Unauthorized` | API key is missing or invalid. | Check that you included the `Authorization` header and that the key value is correct. |
+| `403 Forbidden` | API key is valid but lacks permission for this endpoint. | Verify the key has the necessary scopes. Create a new key with the correct permissions if needed. |
+| `429 Too Many Requests` | You have exceeded the rate limit for your key. | Back off and retry after the interval specified in the `Retry-After` response header. |
+
+## Rotate and revoke keys
+
+To rotate a key, create a new one in **Settings → API Keys**, update your application to use the new key, then revoke the old one. Revocation takes effect immediately — any requests using the revoked key will return `401`.
+
+Because you can have multiple keys active at once, you can complete a rotation with zero downtime.

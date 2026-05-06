@@ -1,0 +1,168 @@
+---
+title: "Livepeer Python SDK reference"
+sidebarTitle: "Python SDK"
+description: "Install the Livepeer Python SDK with pip and call inference, transcoding, and pipeline discovery with typed return values and automatic retry on job failure."
+---
+
+The Livepeer Python SDK wraps the REST API with typed methods, automatic retries on job failure, and exception classes for structured error handling. Use it to call GPU inference, start transcoding jobs, and discover available pipelines without manually constructing HTTP requests.
+
+## Requirements
+
+- Python 3.8 or later
+- A Livepeer API key (get one from [livepeer.org/dashboard](https://livepeer.org/dashboard) → Settings → API Keys)
+
+## Installation
+
+```bash
+pip install livepeer
+```
+
+## Initialization
+
+```python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+```
+
+Store your API key in an environment variable rather than hardcoding it:
+
+```python
+import os
+import livepeer
+
+client = livepeer.Livepeer(api_key=os.environ["LIVEPEER_API_KEY"])
+```
+
+## Modules
+
+| Module | Description |
+|--------|-------------|
+| `client.inference` | AI inference methods: image-to-image, text-to-image, video analysis |
+| `client.transcoding` | Create and manage live transcoding jobs |
+| `client.pipelines` | List available inference pipelines on the network |
+| `client.orchestrators` | List and filter active orchestrators |
+
+## Methods
+
+### `client.inference.image_to_image()`
+
+Transform a source image using a text prompt.
+
+```python
+response = client.inference.image_to_image(
+    prompt="watercolor painting style",
+    image_url="https://example.com/photo.jpg",
+    strength=0.75,
+    num_inference_steps=30,
+    seed=42
+)
+# response.output_url → str
+# response.orchestrator → str
+# response.job_id → str
+# response.duration_ms → int
+# response.status → str
+```
+
+### `client.inference.text_to_image()`
+
+Generate an image from a text description.
+
+```python
+response = client.inference.text_to_image(
+    prompt="a sci-fi cityscape at sunset, neon lights, 8k",
+    width=768,
+    height=512,
+    num_inference_steps=30,
+    num_images=2
+)
+# response.images → list[{"url": str, "index": int}]
+# response.orchestrator → str
+# response.job_id → str
+```
+
+### `client.inference.video_analysis()`
+
+Run real-time inference on a live video stream.
+
+```python
+job = client.inference.video_analysis(
+    stream_url="rtmp://ingest.example.com/live/key",
+    model="yolov8",
+    frame_rate=10,
+    confidence_threshold=0.7,
+    classes=["person", "car"],
+    callback_url="https://your-app.com/webhooks/analysis"
+)
+# job.job_id → str
+# job.results_url → str
+# job.status → str
+```
+
+### `client.transcoding.create()`
+
+Create an adaptive bitrate transcoding job from an RTMP stream.
+
+```python
+job = client.transcoding.create(
+    stream_url="rtmp://ingest.example.com/live/key",
+    renditions=[
+        {"resolution": "1080p", "bitrate": "4000k", "fps": 30},
+        {"resolution": "720p",  "bitrate": "2000k", "fps": 30},
+        {"resolution": "480p",  "bitrate": "800k",  "fps": 30},
+    ]
+)
+# job.playback_url → str
+# job.stream_id → str
+# job.status → str
+```
+
+### `client.pipelines.list()`
+
+List all available inference pipelines currently on the network.
+
+```python
+pipelines = client.pipelines.list()
+# Returns: list[Pipeline]
+# Each Pipeline has .id, .name, .description, .category
+
+for p in pipelines:
+    print(p.id, p.name)
+```
+
+## Error handling
+
+The SDK raises typed exceptions so you can handle different failure modes separately:
+
+```python
+import livepeer
+from livepeer.exceptions import LivepeerAPIError, RateLimitError, NoCapacityError
+
+client = livepeer.Livepeer(api_key=os.environ["LIVEPEER_API_KEY"])
+
+try:
+    response = client.inference.text_to_image(
+        prompt="a mountain landscape at dawn"
+    )
+    print(response.images[0].url)
+
+except RateLimitError as e:
+    print(f"Rate limit hit. Retry after {e.retry_after} seconds.")
+
+except NoCapacityError:
+    print("No orchestrators available right now. Retry with backoff.")
+
+except LivepeerAPIError as e:
+    print(f"API error {e.code}: {e.message}")
+    print(f"Job ID: {e.job_id}")
+```
+
+## Configuration options
+
+Pass these keyword arguments to `livepeer.Livepeer()`:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `api_key` | `str` | — | Your Livepeer API key (required) |
+| `timeout` | `int` | `30` | Request timeout in seconds |
+| `max_retries` | `int` | `3` | Automatic retry count on job failure. The SDK retries on a different orchestrator each time. |

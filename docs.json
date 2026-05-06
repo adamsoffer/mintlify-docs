@@ -1,0 +1,102 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "Livepeer Developer Dashboard",
+  "colors": {
+    "primary": "#18794E",
+    "light": "#40BF86",
+    "dark": "#115C3B"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/livepeer"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/network",
+              "concepts/orchestrators",
+              "concepts/pipelines",
+              "concepts/lpt-token"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/first-inference-call",
+              "guides/mcp-tools",
+              "guides/byoc-orchestrator",
+              "guides/streaming-transcoding"
+            ]
+          },
+          {
+            "group": "Ecosystem",
+            "pages": [
+              "ecosystem/overview",
+              "ecosystem/solutions"
+            ]
+          },
+          {
+            "group": "Network Participation",
+            "pages": [
+              "network/staking-delegation",
+              "network/run-orchestrator",
+              "network/explorer"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Inference",
+            "pages": [
+              "api-reference/inference/image-to-image",
+              "api-reference/inference/text-to-image",
+              "api-reference/inference/video-analysis",
+              "api-reference/inference/transcoding"
+            ]
+          },
+          {
+            "group": "SDK",
+            "pages": [
+              "api-reference/sdk/python",
+              "api-reference/sdk/mcp-server"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "discord": "https://discord.gg/livepeer",
+      "github": "https://github.com/livepeer",
+      "x": "https://x.com/livepeer"
+    }
+  }
+}

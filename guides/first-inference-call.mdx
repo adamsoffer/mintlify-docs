@@ -1,0 +1,123 @@
+---
+title: "Run your first AI inference job on Livepeer"
+sidebarTitle: "First Inference Call"
+description: "Walk through making an image-to-image inference call using the Python SDK, covering setup, authentication, and handling the response."
+---
+
+The Livepeer network routes your inference job to an available GPU orchestrator, runs it, and returns the result — all through a single authenticated API call. This guide walks you through making your first image-to-image call using the Python SDK, from installation to reading the output.
+
+<Steps>
+  <Step title="Install the SDK">
+    Install the Livepeer Python SDK using pip:
+
+    ```bash
+    pip install livepeer
+    ```
+  </Step>
+
+  <Step title="Initialize the client">
+    Import the SDK and create a client using your API key. You can find your API key in the [Developer Dashboard](https://livepeer.org/dashboard) under **Settings → API Keys**.
+
+    ```python
+    import livepeer
+
+    client = livepeer.Livepeer(api_key="lp_your_api_key")
+    ```
+
+    Keep your API key out of source control. Use an environment variable in production:
+
+    ```python
+    import os
+    import livepeer
+
+    client = livepeer.Livepeer(api_key=os.environ["LIVEPEER_API_KEY"])
+    ```
+  </Step>
+
+  <Step title="Choose a pipeline">
+    Livepeer supports multiple AI inference pipelines. This guide uses **image-to-image**, which takes a source image and a text prompt and returns a transformed version of that image.
+
+    Other available pipelines include text-to-image, video-to-video, and depth estimation. You can list all pipelines with `client.pipelines.list()`.
+  </Step>
+
+  <Step title="Send the request">
+    Call the image-to-image endpoint with a prompt and a source image URL. The `strength` parameter controls how much the model transforms the original — `0.0` preserves it fully, `1.0` replaces it entirely.
+
+    ```python
+    response = client.inference.image_to_image(
+        prompt="anime style, vibrant colors, high contrast",
+        image_url="https://example.com/your-input.jpg",
+        strength=0.7,        # 0.0 = preserve original, 1.0 = full transformation
+        num_inference_steps=20
+    )
+    ```
+
+    You can also send this request with curl:
+
+    ```bash
+    curl -X POST https://livepeer.network/api/inference/image-to-image \
+      -H "Authorization: Bearer lp_your_api_key" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "prompt": "anime style, vibrant colors, high contrast",
+        "image_url": "https://example.com/your-input.jpg",
+        "strength": 0.7,
+        "num_inference_steps": 20
+      }'
+    ```
+  </Step>
+
+  <Step title="Handle the response">
+    Check the `status` field before reading the output. A successful response includes the output image URL, the orchestrator that served the job, and the job duration.
+
+    ```python
+    if response.status == "success":
+        print(f"Output: {response.output_url}")
+        print(f"Served by: {response.orchestrator}")
+        print(f"Duration: {response.duration_ms}ms")
+    else:
+        print(f"Job failed: {response.error}")
+    ```
+
+    <Note>
+      Failed jobs are not charged. If a job fails, the network automatically retries on alternative orchestrators before returning an error to your client.
+    </Note>
+  </Step>
+
+  <Step title="View job attribution">
+    Every response includes `response.orchestrator` — the on-chain address of the GPU provider that served your job. This attribution is cryptographically verified by the SDK by default.
+
+    You do not choose an orchestrator before submitting a job. The protocol routes your request to available capacity based on the pipeline you requested and current network pricing. You see which orchestrator served the job after it completes.
+
+    To pin future jobs to a specific orchestrator — for example, to build a consistent testing baseline — pass `orchestrator_address` as a request parameter.
+  </Step>
+</Steps>
+
+## Full working example
+
+Here is the complete script combining all steps above:
+
+```python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+# Run an image-to-image transformation
+response = client.inference.image_to_image(
+    prompt="anime style, vibrant colors, high contrast",
+    image_url="https://example.com/your-input.jpg",
+    strength=0.7,        # 0.0 = preserve original, 1.0 = full transformation
+    num_inference_steps=20
+)
+
+if response.status == "success":
+    print(f"Output: {response.output_url}")
+    print(f"Served by: {response.orchestrator}")
+    print(f"Duration: {response.duration_ms}ms")
+else:
+    print(f"Job failed: {response.error}")
+```
+
+<Tip>
+  Try text-to-image to generate new images from a prompt alone, without a source image. Use `client.inference.text_to_image(prompt="...")` with the same client setup.
+</Tip>

@@ -1,0 +1,129 @@
+---
+title: "POST /inference/video-analysis"
+sidebarTitle: "Video Analysis"
+description: "Run real-time object detection and scene classification on live video. Accepts stream_url and model. Per-frame results delivered to a callback_url or SSE."
+---
+
+Run AI inference on a live video stream frame by frame. This endpoint supports object detection with YOLOv8, scene classification, and custom analysis models. Results are delivered in real time to your `callback_url` as each frame is processed — you don't have to wait for the stream to finish. This design suits sports analytics, security monitoring, manufacturing inspection, and live event intelligence where you need to act on detections as they happen.
+
+## Endpoint
+
+```
+POST https://livepeer.network/api/inference/video-analysis
+```
+
+**Authentication:** `Authorization: Bearer <api-key>`  
+**Content-Type:** `application/json`
+
+## Request parameters
+
+<ParamField body="stream_url" type="string" required>
+  RTMP or HLS URL of the input video stream to analyze.
+</ParamField>
+
+<ParamField body="model" type="string" required>
+  Analysis model to run. Supported values: `"yolov8"`, `"scene-classification"`, or a custom model ID from your account. Use `"yolov8"` for general-purpose object detection and the `classes` filter to narrow results.
+</ParamField>
+
+<ParamField body="frame_rate" type="integer" default="30">
+  Frames per second to analyze. Reduce this value to lower compute usage and cost when high-frequency analysis is not required.
+</ParamField>
+
+<ParamField body="confidence_threshold" type="number" default="0.5">
+  Minimum confidence score to include a detection in results. Accepted range: `0.0`–`1.0`. Raise this threshold to reduce false positives.
+</ParamField>
+
+<ParamField body="classes" type="string[]">
+  Filter detections to specific object classes. Only applies when using the `"yolov8"` model. For example: `["person", "car", "bicycle"]`. If omitted, all detected classes are returned.
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  Webhook URL to receive per-frame analysis results as they are produced. The network sends a POST request to this URL for each analyzed frame. If omitted, poll `results_url` in the response instead.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="job_id" type="string">
+  Unique identifier for tracking this stream analysis session.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current job status: `"running"`, `"completed"`, or `"failed"`.
+</ResponseField>
+
+<ResponseField name="results_url" type="string">
+  Server-sent events (SSE) endpoint where you can stream per-frame analysis results in real time. Use this as an alternative to `callback_url`.
+</ResponseField>
+
+<ResponseField name="orchestrator" type="string">
+  Ethereum address of the orchestrator node serving the analysis job.
+</ResponseField>
+
+## Per-frame result format
+
+When analysis results are delivered to your `callback_url`, each POST request body follows this structure:
+
+```json
+{
+  "timestamp_ms": 12345,
+  "frame": 371,
+  "detections": [
+    {
+      "class": "person",
+      "confidence": 0.94,
+      "bbox": {"x": 120, "y": 80, "width": 60, "height": 180}
+    }
+  ]
+}
+```
+
+The `bbox` coordinates are in pixels relative to the original frame dimensions. `x` and `y` are the top-left corner of the bounding box.
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://livepeer.network/api/inference/video-analysis \
+  -H "Authorization: Bearer lp_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stream_url": "rtmp://ingest.example.com/live/stream-key",
+    "model": "yolov8",
+    "frame_rate": 10,
+    "confidence_threshold": 0.7,
+    "classes": ["person", "car"],
+    "callback_url": "https://your-app.com/webhooks/analysis"
+  }'
+```
+
+```python Python
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+job = client.inference.video_analysis(
+    stream_url="rtmp://ingest.example.com/live/stream-key",
+    model="yolov8",
+    frame_rate=10,
+    confidence_threshold=0.7,
+    classes=["person", "car"],
+    callback_url="https://your-app.com/webhooks/analysis"
+)
+
+print(f"Analysis job started: {job.job_id}")
+print(f"Stream results from: {job.results_url}")
+```
+
+</CodeGroup>
+
+## Example response
+
+```json
+{
+  "job_id": "job_analysis_def456",
+  "status": "running",
+  "results_url": "https://livepeer.network/api/jobs/job_analysis_def456/stream",
+  "orchestrator": "0x9876543210fedcba..."
+}
+```

@@ -1,0 +1,70 @@
+---
+title: "Run an orchestrator: earn fees with your GPU"
+sidebarTitle: "Run Orchestrator"
+description: "Set up a Livepeer orchestrator node, stake LPT, and start earning ETH fees and inflation rewards by performing AI inference on the network."
+---
+
+An orchestrator is a GPU node that performs work on the Livepeer network — image generation, video analysis, style transfer, transcoding — and earns fees in ETH or stablecoins for every job it completes. If you have capable GPU hardware and want to monetize it, running an orchestrator is how you participate on the supply side of the network.
+
+<Warning>
+  Running an orchestrator requires GPU hardware, technical Linux administration skills, and a reliable internet connection. Maintaining uptime and low latency is a full-time commitment — poor performance will reduce your routing weight and earnings.
+</Warning>
+
+## Requirements
+
+Before you start, make sure you have the following:
+
+- **NVIDIA GPU** — RTX 3080 or better is recommended for AI inference pipelines. Older or lower-VRAM cards may be limited to transcoding workloads.
+- **LPT stake** — the network routes more jobs to orchestrators with higher delegated stake. Acquire LPT and stake it to your own node to start receiving routing weight.
+- **Stable internet connection** — low latency is critical; orchestrators with slow response times are deprioritized.
+- **Linux server** — Ubuntu 20.04 or later. Docker is also supported.
+
+## Earning model
+
+Your earnings come from two sources:
+
+- **Per-job fees** — you earn ETH or stablecoins for every second of compute you contribute to inference or transcoding jobs.
+- **LPT inflation rewards** — new LPT is minted by the protocol each round and distributed to orchestrators and delegators in proportion to their stake.
+
+The network uses LPT stake as a routing signal: orchestrators with more stake — from self-delegation and from community delegators — receive a larger share of available jobs.
+
+## Setup flow
+
+<Steps>
+  <Step title="Download the Livepeer software">
+    Download and extract the latest Livepeer binary for your platform:
+
+    ```bash
+    curl -L https://releases.livepeer.org/latest/linux-amd64.tar.gz | tar xz
+    ```
+  </Step>
+  <Step title="Configure your node">
+    Start your orchestrator with your GPU and public service address. Replace `your-public-ip` with your server's public IP address and point `ethKeystorePath` at your Ethereum keystore directory:
+
+    ```bash
+    ./livepeer -orchestrator -transcoder \
+      -serviceAddr your-public-ip:8935 \
+      -nvidia 0 \
+      -ethKeystorePath /path/to/keystore
+    ```
+
+    The `-nvidia 0` flag enables GPU 0. Add additional comma-separated indices (e.g., `-nvidia 0,1`) to use multiple GPUs.
+  </Step>
+  <Step title="Acquire and stake LPT">
+    Purchase LPT on a supported exchange and transfer it to the Ethereum address associated with your keystore. Then stake it to your own orchestrator through the [Livepeer Explorer](https://explorer.livepeer.org) to begin accumulating routing weight.
+  </Step>
+  <Step title="Register on the network">
+    Use the Explorer to activate your orchestrator. Set your commission rate for delegators, confirm your service address, and submit the registration transaction.
+  </Step>
+  <Step title="Start receiving jobs">
+    Once registered and staked, the network will begin routing jobs to your node based on your stake weight and performance. Monitor your node's activity and earnings in the Explorer.
+  </Step>
+</Steps>
+
+## Custom AI model deployments (BYOC)
+
+If you want to run custom AI containers beyond the default Livepeer pipelines — your own fine-tuned models, specialized inference stacks, or custom ComfyUI workflows — you can do so through the BYOC (Bring Your Own Container) orchestrator feature. See the [BYOC orchestrator guide](/guides/byoc-orchestrator) for setup instructions.
+
+## Monitor your orchestrator
+
+Track your node's performance, stake weight, active jobs, and accumulated rewards at [explorer.livepeer.org](https://explorer.livepeer.org).

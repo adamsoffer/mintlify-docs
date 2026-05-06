@@ -1,0 +1,51 @@
+---
+title: "How the Livepeer network works"
+sidebarTitle: "The Network"
+description: "Livepeer has three layers — supply, protocol, and demand — that route AI video jobs from your application to independent GPU providers on Ethereum."
+---
+
+Livepeer is a global network that connects developers building real-time AI video applications with independent GPU operators. To use it effectively, it helps to understand how compute requests flow from your code to the hardware that runs them — and what makes the network cheaper and more open than centralized alternatives.
+
+## Three layers
+
+The network organizes around three layers: supply, protocol, and demand.
+
+| Layer | What it does | Who operates it |
+|---|---|---|
+| **Supply** | Independent GPU operators contribute hardware (called orchestrators) and earn fees in ETH or stablecoins for performing AI inference. Anyone with capable GPU hardware can join. | Independent operators worldwide |
+| **Protocol** | Built on Ethereum. Handles orchestrator discovery, job routing, payment settlement, and quality-of-service verification. Permissionless — no approval required to participate. | Decentralized (Ethereum) |
+| **Demand** | The surfaces developers and end users use to access compute. This includes the Developer Dashboard (what you're using now) and applications built on the network: Daydream, Frameworks, Embody, and others. | Livepeer Foundation + ecosystem builders |
+
+## How a job flows through the network
+
+When your application calls the Livepeer API, the request follows this path:
+
+1. **Your application** sends an inference request (for example, an image-to-image transformation) to the API endpoint.
+2. **A gateway node** receives the request and routes it to an available orchestrator that supports the pipeline you requested, at the current market price.
+3. **An orchestrator node** — a GPU operated by an independent provider — runs the AI model and returns the result.
+4. **Your application** receives the output. Every job is cryptographically attributed to the orchestrator that served it.
+
+Payment is settled by the protocol. You are charged per second of compute; failed jobs are not charged.
+
+## Two surfaces for two audiences
+
+Livepeer has two network surfaces. Use the one that matches your role:
+
+| Surface | Audience | What you do there |
+|---|---|---|
+| **Developer Dashboard** | Developers building applications | Authenticate, call inference pipelines, monitor usage |
+| **Explorer** ([explorer.livepeer.org](https://explorer.livepeer.org)) | Operators and delegators | Run orchestrators, stake LPT, earn rewards |
+
+These are sibling surfaces on the same network — not parent and child. If you are here to build an application, the Developer Dashboard is your entry point.
+
+## Why it costs less
+
+The Livepeer network runs 60–85% cheaper than centralized GPU cloud providers like AWS, RunPod, and Fal. This cost advantage comes from the token economics: orchestrators earn LPT inflation rewards in addition to inference fees, which offsets the rate they need to charge developers to cover their hardware costs. You pay less; they still profit. See [LPT Token](/concepts/lpt-token) for details.
+
+## Permissionless access
+
+You do not need an enterprise contract, a sales conversation, or vendor approval to use Livepeer. Sign up, get an API key, and make your first call. The same permissionless principle applies to GPU operators: anyone with capable hardware can join the supply layer and start earning.
+
+<Note>
+  The Livepeer network currently operates at an estimated 90–95% uptime. It is not an enterprise-SLA service. It is designed for builders who accept the reliability trade-off in exchange for significant cost savings and open access. If your workload requires guaranteed uptime, factor this into your architecture.
+</Note>

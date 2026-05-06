@@ -1,0 +1,63 @@
+---
+title: "Livepeer API: GPU inference for real-time video"
+sidebarTitle: "Overview"
+description: "The Livepeer REST API provides GPU inference on the open network. Covers inference, transcoding, pricing, rate limits, and per-job orchestrator attribution."
+---
+
+The Livepeer API is a REST API that gives you direct access to GPU inference on the open Livepeer network. Rather than routing your workloads through a centralized cloud provider, your requests are authenticated at the Developer Dashboard layer and dispatched to independent GPU operators (orchestrators) via the Livepeer protocol. Every response includes attribution to the specific orchestrator that served your job.
+
+## Base URL
+
+All API requests use the following base URL:
+
+```
+https://livepeer.network/api
+```
+
+## Authentication
+
+Every request requires an API key passed as a Bearer token in the `Authorization` header:
+
+```
+Authorization: Bearer <your_api_key>
+```
+
+All request bodies must use `Content-Type: application/json`.
+
+## Endpoint categories
+
+| Prefix | Description |
+|--------|-------------|
+| `/inference/*` | AI inference pipelines: image-to-image, text-to-image, video analysis |
+| `/transcoding` | Live video transcoding and adaptive bitrate (ABR) |
+| `/pipelines` | List available inference pipelines |
+| `/orchestrators` | List active orchestrators on the network |
+
+## Quick start
+
+The following request lists all available pipelines. Use it to verify your API key and explore what the network currently supports:
+
+```bash
+curl https://livepeer.network/api/pipelines \
+  -H "Authorization: Bearer lp_your_api_key"
+```
+
+## Pricing
+
+The API charges per second of compute, metered by the protocol. You have cost visibility before each call — the protocol exposes pricing for each pipeline before you commit to a job. At current volumes, Livepeer is estimated to be 60–85% cheaper than centralized GPU cloud alternatives, because independent orchestrators offset their costs through LPT token rewards rather than single-tenant infrastructure pricing.
+
+## Reliability
+
+<Note>
+The Livepeer network operates at an estimated 90–95% uptime. There are no enterprise SLAs. This API is built for technically fluent builders who accept reliability trade-offs in exchange for cost and openness — not for enterprise production workloads that require guaranteed uptime.
+</Note>
+
+Failed jobs are not charged. The SDK automatically retries failed jobs on a different orchestrator up to three times before returning an error to your application.
+
+## Rate limits
+
+Rate limits are enforced per API key. When you exceed your limit, the API returns a `429` response with a `Retry-After` header indicating how many seconds to wait before retrying. See [Errors](/api-reference/errors) for the full list of error codes.
+
+## Job attribution
+
+Every API response includes an `orchestrator` field containing the Ethereum address of the orchestrator node that served the job. This attribution is cryptographically verified by the client SDK by default. You can use this field to audit which network participants handled your workloads.

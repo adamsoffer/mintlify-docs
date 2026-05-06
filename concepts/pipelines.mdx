@@ -1,0 +1,104 @@
+---
+title: "AI inference pipelines on Livepeer"
+sidebarTitle: "Pipelines"
+description: "A pipeline is a named AI workload that defines input, model, and output. Livepeer supports image-to-image, text-to-image, video analysis, and transcoding."
+---
+
+A pipeline is how you tell the Livepeer network what kind of AI work to run. Each pipeline defines the expected input format, the model category, and the output format. When you make an API call, you specify a pipeline — the protocol routes your job to orchestrators that support it and are available at the current price.
+
+## Available pipelines
+
+| Pipeline | Input | Output | Typical use cases | Typical latency |
+|---|---|---|---|---|
+| **image-to-image** | Image + text prompt | Transformed image | Style transfer, artistic effects, depth estimation | 200–800 ms per frame |
+| **text-to-image** | Text prompt | Generated image | Concept art, asset generation, UI mockups | 1–4 s per image |
+| **video-analysis** | Video frame or stream | Structured data / annotations | Object detection (YOLOv8), scene classification, custom models | 8–50 ms per frame |
+| **transcoding** | Video stream | Multiple output renditions | Adaptive bitrate live streaming, VOD encoding | Sub-second latency |
+
+Latency figures are approximate and depend on the orchestrator serving the job, the model loaded, and current network conditions.
+
+## How to select a pipeline
+
+Pass the pipeline name as part of your API request. Each pipeline has its own endpoint with specific required and optional parameters. Full request schemas are in the [API Reference](/api-reference/overview).
+
+<CodeGroup>
+
+```python image-to-image
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+response = client.inference.image_to_image(
+    prompt="impressionist oil painting, warm afternoon light",
+    image_url="https://example.com/input.jpg",
+    strength=0.75,
+    num_inference_steps=30,
+)
+
+print(response.output_url)
+```
+
+```python text-to-image
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+response = client.inference.text_to_image(
+    prompt="a futuristic city at dusk, cinematic lighting, 4k",
+    width=1024,
+    height=1024,
+    num_inference_steps=30,
+)
+
+for image in response.images:
+    print(image.url)
+```
+
+```python video-analysis
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+job = client.inference.video_analysis(
+    stream_url="rtmp://ingest.example.com/live/stream-key",
+    model="yolov8",
+    frame_rate=10,
+    classes=["person", "car"],
+    callback_url="https://your-app.com/webhooks/analysis",
+)
+
+print(f"Analysis job: {job.job_id}")
+print(f"Results stream: {job.results_url}")
+```
+
+```python transcoding
+import livepeer
+
+client = livepeer.Livepeer(api_key="lp_your_api_key")
+
+job = client.transcoding.create(
+    stream_url="rtmp://ingest.example.com/live/stream-key",
+    renditions=[
+        {"resolution": "720p",  "bitrate": "2000k", "fps": 30},
+        {"resolution": "480p",  "bitrate": "800k",  "fps": 30},
+        {"resolution": "360p",  "bitrate": "400k",  "fps": 30},
+    ],
+    output_format="hls",
+)
+
+print(f"Playback URL: {job.playback_url}")
+```
+
+</CodeGroup>
+
+## Real-time use
+
+All pipelines are designed for low-latency, frame-by-frame processing during live streams. The `image-to-image` and `video-analysis` pipelines are the most common choices for real-time use: they accept individual frames and return results fast enough to keep up with a 30 FPS or 60 FPS stream when called in parallel.
+
+For transcoding, the protocol optimizes for sub-second latency by distributing encoding work across multiple orchestrators.
+
+## Pricing
+
+Pipelines are metered per second of compute by the protocol. You see the cost before each call. There are no minimum commitments or idle fees — you pay only for work that completes successfully. Failed jobs are not charged.
+
+For a full breakdown of pricing by pipeline, see the [API Reference](/api-reference/overview).

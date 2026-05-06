@@ -1,0 +1,59 @@
+---
+title: "API authentication: keys and Bearer tokens"
+sidebarTitle: "Authentication"
+description: "Get a Livepeer API key from the Developer Dashboard and pass it as a Bearer token on every request. Covers header format, SDK setup, and auth error codes."
+---
+
+Every request to the Livepeer API must include an API key. You get your key from the Developer Dashboard, then pass it in the `Authorization` header on every request. There is no OAuth flow, no session management, and no token exchange — just a static key you control from your dashboard.
+
+## Getting an API key
+
+1. Go to [livepeer.org/dashboard](https://livepeer.org/dashboard)
+2. Navigate to **Settings → API Keys**
+3. Click **Create key**, give it a name, and copy the value
+
+Keys are prefixed with `lp_` so you can identify them easily in logs and environment variables.
+
+<Note>
+LPT (Livepeer Token) is **not** required for API authentication. LPT is the staking token for orchestrators who provide compute on the network. As a developer calling the API, you only need an API key.
+</Note>
+
+## Header format
+
+Pass your key in the `Authorization` header with the `Bearer` prefix on every request:
+
+```
+Authorization: Bearer lp_your_api_key_here
+```
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://livepeer.network/api/inference/image-to-image \
+  -H "Authorization: Bearer lp_your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "anime style", "image_url": "https://example.com/image.jpg"}'
+```
+
+```python Python
+import livepeer
+client = livepeer.Livepeer(api_key="lp_your_api_key_here")
+```
+
+</CodeGroup>
+
+## Error responses
+
+| Status | Code | Meaning |
+|--------|------|---------|
+| 401 | `unauthorized` | API key missing or invalid |
+| 403 | `forbidden` | Key is valid but lacks permission for this endpoint |
+| 429 | `rate_limit_exceeded` | Too many requests; wait and retry |
+
+## Key management
+
+You can create multiple API keys for different applications or environments. Each key is independent — revoking one does not affect others. To revoke a key, return to **Settings → API Keys** in the dashboard and click **Revoke** next to the key you want to remove. Revocation takes effect immediately.
+
+Treat your API keys as secrets. Do not commit them to version control or expose them in client-side code. Use environment variables or a secrets manager to pass keys to your application at runtime.

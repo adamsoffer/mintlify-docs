@@ -1,0 +1,89 @@
+---
+title: "Use Livepeer from Cursor, Claude, and MCP tools"
+sidebarTitle: "MCP Tools"
+description: "Install the Livepeer MCP server and call the network from any MCP-compatible AI tool like Cursor or Claude — no terminal required."
+---
+
+Model Context Protocol (MCP) is an open standard that lets AI coding tools like Cursor and Claude call external services as tools — directly from your conversation or editor. The Livepeer MCP server exposes the Livepeer network as a set of tools your AI environment can call by name. Once configured, you can run inference jobs by describing what you want in natural language.
+
+Once configured, you can go from reading the docs to your first Livepeer inference call without ever leaving your coding environment.
+
+## What the MCP server exposes
+
+After installation, your MCP-compatible tool gains access to these Livepeer tools:
+
+| Tool | What it does |
+|------|--------------|
+| `livepeer_image_to_image` | Transform an image with a text prompt |
+| `livepeer_text_to_image` | Generate an image from a text prompt |
+| `livepeer_transcoding` | Transcode a video with specified output renditions |
+| `livepeer_list_pipelines` | List all available inference pipelines |
+
+## Install the MCP server
+
+```bash
+npm install -g @livepeer/mcp-server
+```
+
+<Note>
+  The MCP server reads your API key from the `LIVEPEER_API_KEY` environment variable. Set this in your tool's MCP configuration rather than in your shell profile so it is scoped to the MCP process.
+</Note>
+
+## Configure your tool
+
+<Tabs>
+  <Tab title="Cursor">
+    Open Cursor settings (`cursor://settings`), navigate to **MCP**, and add the Livepeer server configuration:
+
+    <CodeGroup>
+      ```json Cursor MCP settings
+      {
+        "mcpServers": {
+          "livepeer": {
+            "command": "livepeer-mcp",
+            "env": {
+              "LIVEPEER_API_KEY": "lp_your_api_key_here"
+            }
+          }
+        }
+      }
+      ```
+    </CodeGroup>
+
+    After saving, Cursor will connect to the MCP server and make the Livepeer tools available in your AI chat panel.
+  </Tab>
+
+  <Tab title="Claude">
+    Open your Claude Desktop configuration file. On macOS this is at `~/Library/Application Support/Claude/claude_desktop_config.json`. Add the Livepeer server entry under `mcpServers`:
+
+    <CodeGroup>
+      ```json claude_desktop_config.json
+      {
+        "mcpServers": {
+          "livepeer": {
+            "command": "livepeer-mcp",
+            "env": {
+              "LIVEPEER_API_KEY": "lp_your_api_key_here"
+            }
+          }
+        }
+      }
+      ```
+    </CodeGroup>
+
+    Restart Claude Desktop after saving. Claude will confirm the Livepeer tools are available at the start of your next session.
+  </Tab>
+</Tabs>
+
+## Use Livepeer from your AI tool
+
+Once the server is configured, describe what you want in natural language. Your AI tool calls the appropriate Livepeer tool automatically.
+
+Example prompts that work after setup:
+
+- "Use livepeer to transform this image in anime style"
+- "Generate an image of a futuristic city at night using livepeer"
+- "List the available Livepeer inference pipelines"
+- "Transcode this video to 720p and 480p using livepeer"
+
+The MCP server handles authentication, formats the request, and returns the result — including the output URL and the orchestrator that served the job — directly in your AI conversation.
